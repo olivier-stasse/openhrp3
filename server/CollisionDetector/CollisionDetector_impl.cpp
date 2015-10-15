@@ -15,10 +15,11 @@
 */
 
 #include "CollisionDetector_impl.h"
+#include "Localization_impl.h"
 #include <hrpCollision/ColdetModel.h>
 #include <iostream>
 #include <string>
-
+#include <fstream>
 
 using namespace std;
 using namespace hrp;
@@ -152,15 +153,16 @@ CORBA::Boolean CollisionDetector_impl::queryContactDeterminationForGivenPairs
 void CollisionDetector_impl::updateAllLinkPositions
 (const CharacterPositionSequence& characterPositions)
 {
-    for(unsigned int i=0; i < characterPositions.length(); i++){
-        const CharacterPosition& characterPosition = characterPositions[i];
-        const string bodyName(characterPosition.characterName);
-        StringToColdetBodyMap::iterator it = nameToColdetBodyMap.find(bodyName);
-        if(it != nameToColdetBodyMap.end()){
-            ColdetBodyPtr& coldetBody = it->second;
-            coldetBody->setLinkPositions(characterPosition.linkPositions);
-        }
+  for(unsigned int i=0; i < characterPositions.length(); i++){
+    const CharacterPosition& characterPosition = characterPositions[i];
+    const string bodyName(characterPosition.characterName);
+    StringToColdetBodyMap::iterator it = nameToColdetBodyMap.find(bodyName);
+    if(it != nameToColdetBodyMap.end()){
+      ColdetBodyPtr& coldetBody = it->second;
+      coldetBody->setLinkPositions(characterPosition.linkPositions);
     }
+  }
+    
 }
 
 
@@ -435,6 +437,20 @@ void CollisionDetector_impl::computeDistances
     }
 }
 
+bool CollisionDetector_impl::
+getLocalizationForLink(const char *aLinkName,
+		       ::OpenHRP::LinkPosition &aLinkPosition)
+{
+  StringToColdetBodyMap::iterator it = nameToColdetBodyMap.begin();
+  while(it != nameToColdetBodyMap.end())
+    {
+      ColdetBodyPtr& coldetBody = it->second;
+      if (coldetBody->getLocalizationForLink(aLinkName,aLinkPosition))
+	return true;
+    }
+  return false;
+}
+
 
 CollisionDetectorFactory_impl::CollisionDetectorFactory_impl(CORBA_ORB_ptr orb)
     : orb(CORBA_ORB::_duplicate(orb))
@@ -450,6 +466,10 @@ CollisionDetectorFactory_impl::~CollisionDetectorFactory_impl()
     poa->deactivate_object(id);
 }
 
+void CollisionDetectorFactory_impl::setLocalization(Localization_impl *aLocalizationImpl)
+{
+  localization_impl_ = aLocalizationImpl;
+}
 
 CollisionDetector_ptr CollisionDetectorFactory_impl::create()
 {
@@ -457,6 +477,8 @@ CollisionDetector_ptr CollisionDetectorFactory_impl::create()
     PortableServer::ServantBase_var collisionDetectorrServant = collisionDetector;
     PortableServer::POA_var poa = _default_POA();
     PortableServer::ObjectId_var id = poa->activate_object(collisionDetector);
+    if (localization_impl_)
+      localization_impl_->setCollisionDetectorPtr(collisionDetector);
     return collisionDetector->_this();
 }
 
@@ -465,3 +487,4 @@ void CollisionDetectorFactory_impl::shutdown()
 {
     orb->shutdown(false);
 }
+

@@ -4,6 +4,7 @@ set(program openhrp-collision-detector)
 set(sources
   ColdetBody.cpp
   CollisionDetector_impl.cpp
+  Localization_impl.cpp
   server.cpp)
 
 add_executable(${program} ${sources})

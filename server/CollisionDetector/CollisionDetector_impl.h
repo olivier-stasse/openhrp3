@@ -26,7 +26,11 @@
 #include "ColdetBody.h"
 
 using namespace std;
+using namespace hrp;
+using namespace boost;
 using namespace OpenHRP;
+
+class Localization_impl;
 
 
 class CollisionDetector_impl : virtual public POA_OpenHRP::CollisionDetector,
@@ -89,6 +93,8 @@ public:
 
     virtual DblSequence* scanDistanceWithRay(const DblArray3 p, const DblArray9 R, CORBA::Double step, CORBA::Double range);
 
+    bool getLocalizationForLink(const char *aLinkName,
+				::OpenHRP::LinkPosition & aLinkPosition);
 private:
 
     CORBA_ORB_var orb;
@@ -145,9 +151,12 @@ public:
     CollisionDetector_ptr create();
 
     void shutdown();
+    
+    void setLocalization(Localization_impl *aLocalizationImpl);
 
 private:
     CORBA_ORB_var orb;
+    Localization_impl * localization_impl_;
 };
 
 #endif

@@ -10,5 +10,6 @@ set(IDL_FILE_BASENAMES
   OnlineViewer
   ClockGenerator
   PathPlanner
+  Localization
 )
 

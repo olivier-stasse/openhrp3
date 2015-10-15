@@ -14,7 +14,7 @@
  * @version 0.1 (2002/02/22)
  */
 #include "CollisionDetector_impl.h"
-
+#include "Localization_impl.h"
 #ifdef _WIN32
 #include "winbase.h"
 #else
@@ -25,6 +25,7 @@
 
 using namespace std;
 
+
 /**
  * サーバスタートアップ //
  *
@@ -33,19 +34,19 @@ using namespace std;
  * @return
  */
 int main(int argc, char* argv[]) {
-    CORBA::ORB_var orb;
-    try {
-        orb = CORBA::ORB_init(argc, argv);
-        //
-        // Resolve Root POA
-        //
-        CORBA::Object_var poaObj = orb -> resolve_initial_references("RootPOA");
-        PortableServer::POA_var rootPOA = PortableServer::POA::_narrow(poaObj);
+  CORBA::ORB_var orb;
+  try {
+    orb = CORBA::ORB_init(argc, argv);
+    //
+    // Resolve Root POA
+    //
+    CORBA::Object_var poaObj = orb -> resolve_initial_references("RootPOA");
+    PortableServer::POA_var rootPOA = PortableServer::POA::_narrow(poaObj);
 
-        //
-        // Get a reference to the POA manager
-        //
-        PortableServer::POAManager_var manager = rootPOA -> the_POAManager();
+    //
+    // Get a reference to the POA manager
+    //
+    PortableServer::POAManager_var manager = rootPOA -> the_POAManager();
 
     // ネームサーバへの参照取得 //
     CORBA_Object_var ns;
@@ -80,16 +81,25 @@ int main(int argc, char* argv[]) {
     nc[0].kind = CORBA_string_dup("");
     rootnc -> rebind(nc, cdFactory);
     
+    CORBA_Object_var cdLocalization;
+    Localization_impl* aLocalization = new Localization_impl(orb);
+    cdFactoryImpl->setLocalization(aLocalization);
+    cdLocalization = aLocalization -> _this();
+
+    nc[0].id = CORBA_string_dup("Localization");
+    nc[0].kind = CORBA_string_dup("");
+    rootnc -> rebind(nc, cdLocalization);
+    
     // クライアント側からの接続待ち //
     manager -> activate();
     cout << "ready" << endl;
     
     orb -> run();
-    } catch (CORBA_SystemException& ex) {
-        cerr << ex._rep_id() << endl;
-        orb->destroy();
-        return 1;
-    }
+  } catch (CORBA_SystemException& ex) {
+    cerr << ex._rep_id() << endl;
     orb->destroy();
-    return 0;
+    return 1;
+  }
+  orb->destroy();
+  return 0;
 }

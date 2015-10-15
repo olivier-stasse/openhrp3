@@ -17,22 +17,30 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <boost/shared_ptr.hpp>
+
 #include <hrpUtil/Referenced.h>
 #include <hrpUtil/Eigen4d.h>
 #include <hrpCorba/ModelLoader.hh>
 #include <hrpCollision/ColdetModel.h>
 
-using namespace std;
-using namespace boost;
-using namespace hrp;
-using namespace OpenHRP;
+/* using namespace std; */
+/* using namespace boost; */
+/* using namespace hrp; */
+/* using namespace OpenHRP; */
 
+struct ColBodyPosition {
+  double R[9];
+  double p[3];
+};
+
+typedef boost::shared_ptr<ColBodyPosition> ColBodyPositionPtr;
+typedef std::map<std::string, ColBodyPositionPtr> StringToColBodyPositionMap;
 
 class ColdetBody : public hrp::Referenced
 {
 public:
-    ColdetBody(BodyInfo_ptr bodyInfo);
-
+  ColdetBody(OpenHRP::BodyInfo_ptr bodyInfo);
     /**
        do shallow copy (sharing the same ColdetModel instances)
     */
@@ -44,31 +52,38 @@ public:
     unsigned int numLinks() const {
         return linkColdetModels.size();
     }
-    ColdetModelPtr linkColdetModel(int linkIndex) {
+    hrp::ColdetModelPtr linkColdetModel(int linkIndex) {
         return linkColdetModels[linkIndex];
     }
 
-    ColdetModelPtr linkColdetModel(const string& linkName){
-        map<string, ColdetModelPtr>::iterator p = linkNameToColdetModelMap.find(linkName);
-        return (p == linkNameToColdetModelMap.end()) ? ColdetModelPtr() : p->second;
+    hrp::ColdetModelPtr linkColdetModel(const std::string& linkName){
+      std::map<std::string, hrp::ColdetModelPtr>::iterator 
+	p = linkNameToColdetModelMap.find(linkName);
+      return (p == linkNameToColdetModelMap.end()) ? hrp::ColdetModelPtr() : p->second;
     }
 
-    void setLinkPositions(const LinkPositionSequence& linkPositions);
+    void setLinkPositions(const OpenHRP::LinkPositionSequence& linkPositions);
+    bool getLocalizationForLink(const char *aLinkName,
+				::OpenHRP::LinkPosition &aLinkPosition);
 
   private:
-    void addLinkPrimitiveInfo(ColdetModelPtr& coldetModel, 
+    void addLinkPrimitiveInfo(hrp::ColdetModelPtr& coldetModel, 
                               const double *R, const double *p,
-                              const ShapeInfo& shapeInfo);
+                              const OpenHRP::ShapeInfo& shapeInfo);
     void addLinkVerticesAndTriangles
-        (ColdetModelPtr& coldetModel, LinkInfo& linkInfo, ShapeInfoSequence_var& shapes);
+      (hrp::ColdetModelPtr& coldetModel, 
+       OpenHRP::LinkInfo& linkInfo, OpenHRP::ShapeInfoSequence_var& shapes);
     void addLinkVerticesAndTriangles
-        (ColdetModelPtr& coldetModel, const TransformedShapeIndex& tsi, const Matrix44& Tparent, ShapeInfoSequence_var& shapes, int& vertexIndex, int& triangleIndex);
+      (hrp::ColdetModelPtr& coldetModel, 
+       const OpenHRP::TransformedShapeIndex& tsi, 
+       const hrp::Matrix44& Tparent, 
+       OpenHRP::ShapeInfoSequence_var& shapes, int& vertexIndex, int& triangleIndex);
     
-    vector<ColdetModelPtr> linkColdetModels;
-    map<string, ColdetModelPtr> linkNameToColdetModelMap;
-    string name_;
+    std::vector<hrp::ColdetModelPtr> linkColdetModels;
+    std::map<std::string, hrp::ColdetModelPtr> linkNameToColdetModelMap;
+    StringToColBodyPositionMap linkNameToColBodyPosition;
+    std::string name_;
 };
 
 typedef boost::intrusive_ptr<ColdetBody> ColdetBodyPtr;
-
 #endif
