@@ -1160,8 +1160,14 @@ void TriangleMeshShaper::defaultTextureMapping(VrmlShape* shapeNode)
 void TriangleMeshShaper::defaultTextureMappingFaceSet(VrmlIndexedFaceSet* triangleMesh)
 {
     if(!triangleMesh->texCoord){
-        float max[3]={triangleMesh->coord->point[0][0],triangleMesh->coord->point[0][1],triangleMesh->coord->point[0][2]};
-        float min[3]={triangleMesh->coord->point[0][0],triangleMesh->coord->point[0][1],triangleMesh->coord->point[0][2]};
+      float max[3];
+      max[0] = triangleMesh->coord->point[0][0];
+      max[1] = triangleMesh->coord->point[0][1];
+      max[2] = triangleMesh->coord->point[0][2];
+      float min[3];
+      min[0] = triangleMesh->coord->point[0][0];
+      min[1] = triangleMesh->coord->point[0][1];
+      min[2] = triangleMesh->coord->point[0][2];
         int n = triangleMesh->coord->point.size();
         for(int i=1; i<n; i++){
             for(int j=0; j<3; j++){
