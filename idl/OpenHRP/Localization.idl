@@ -19,7 +19,8 @@ module OpenHRP {
      * @endif
     */
     void getLocalizationForLink(in string aLinkName,
-				out LinkPosition aLinkPosition);
+				out LinkPosition aLinkPosition,
+				out double simTime);
   
   };
 

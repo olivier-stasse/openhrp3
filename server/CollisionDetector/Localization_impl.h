@@ -16,7 +16,8 @@ class Localization_impl :virtual public POA_OpenHRP::Localization,
   ~Localization_impl();
   
   void getLocalizationForLink(const char *aLinkName,
-			      ::OpenHRP::LinkPosition & aLinkPosition);
+			      ::OpenHRP::LinkPosition & aLinkPosition,
+			      ::CORBA::Double & simTime);
 
   void setCollisionDetectorPtr(CollisionDetector_impl *);
 

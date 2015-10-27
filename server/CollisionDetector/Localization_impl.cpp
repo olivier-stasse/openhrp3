@@ -13,12 +13,14 @@ Localization_impl::~Localization_impl()
 }
 
 void Localization_impl::getLocalizationForLink(const char *aLinkName,
-					       ::OpenHRP::LinkPosition & aLinkPosition)
+					       ::OpenHRP::LinkPosition & aLinkPosition,
+					       ::CORBA::Double& simTime)
 {
   if (CollisionDetector_impl_)
     {
       if (!CollisionDetector_impl_->getLocalizationForLink(aLinkName,
-							  aLinkPosition))
+							   aLinkPosition,
+							   simTime))
 	{
 	  for(unsigned int i=0;i<3;i++)
 	    aLinkPosition.p[i]=0.0;
