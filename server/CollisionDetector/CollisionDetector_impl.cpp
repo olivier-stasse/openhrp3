@@ -26,7 +26,7 @@ using namespace hrp;
 
 
 CollisionDetector_impl::CollisionDetector_impl(CORBA_ORB_ptr orb)
-    : orb(CORBA_ORB::_duplicate(orb))
+  : orb(CORBA_ORB::_duplicate(orb)),simTime_(0.0)
 {
 
 }
@@ -162,6 +162,7 @@ void CollisionDetector_impl::updateAllLinkPositions
       coldetBody->setLinkPositions(characterPosition.linkPositions);
     }
   }
+  simTime_ += 0.001 ;
     
 }
 
@@ -439,18 +440,22 @@ void CollisionDetector_impl::computeDistances
 
 bool CollisionDetector_impl::
 getLocalizationForLink(const char *aLinkName,
-		       ::OpenHRP::LinkPosition &aLinkPosition)
+		       ::OpenHRP::LinkPosition &aLinkPosition,
+		       ::CORBA::Double& simTime)
 {
   StringToColdetBodyMap::iterator it = nameToColdetBodyMap.begin();
   while(it != nameToColdetBodyMap.end())
     {
       ColdetBodyPtr& coldetBody = it->second;
       if (coldetBody->getLocalizationForLink(aLinkName,aLinkPosition))
-	return true;
+	{
+	  simTime = simTime_ ;
+	  return true;
+	}
     }
+  simTime=-1;
   return false;
 }
-
 
 CollisionDetectorFactory_impl::CollisionDetectorFactory_impl(CORBA_ORB_ptr orb)
     : orb(CORBA_ORB::_duplicate(orb))

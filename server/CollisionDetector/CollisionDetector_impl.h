@@ -93,8 +93,7 @@ public:
 
     virtual DblSequence* scanDistanceWithRay(const DblArray3 p, const DblArray9 R, CORBA::Double step, CORBA::Double range);
 
-    bool getLocalizationForLink(const char *aLinkName,
-				::OpenHRP::LinkPosition & aLinkPosition);
+    bool getLocalizationForLink(const char * aLinkName,::OpenHRP::LinkPosition & aLinkPosition,::CORBA::Double & simTime);
 private:
 
     CORBA_ORB_var orb;
@@ -135,6 +134,9 @@ private:
         vector<ColdetModelPairExPtr>& coldetPairs, LinkPairSequence_out& out_collidedPairs, const bool checkAll);
     void computeDistances(
         vector<ColdetModelPairExPtr>& coldetPairs, DistanceSequence_out& out_distances);
+    
+    double simTime_ ;
+
 };
 
 

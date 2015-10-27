@@ -19,7 +19,7 @@ if(UNIX)
     ${program}
     hrpCorbaStubSkel-${OPENHRP_LIBRARY_VERSION}
     ${OPENRTM_LIBRARIES}
-    boost_filesystem-mt boost_program_options-mt boost_regex-mt)
+    boost_system boost_filesystem-mt boost_program_options-mt boost_regex-mt)
   if(APPLE)
     target_link_libraries(${program} boost_system-mt)
   endif() 
